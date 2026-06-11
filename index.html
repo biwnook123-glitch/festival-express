@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚂 节日特快 · 未来七天环球开行</title>
+<title>🚂 节日特快 · 未来七天环球开行 · 白白出品</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
@@ -30,6 +30,29 @@
   h1{font-size:clamp(26px,5vw,44px);letter-spacing:3px;text-shadow:0 4px 18px rgba(0,0,0,.35)}
   h1 .gold{color:var(--glow)}
   .sub{margin-top:10px;color:rgba(255,255,255,.75);font-size:14px;line-height:1.8}
+  /* 列车长铭牌 */
+  .conductor{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 20px;
+    background:linear-gradient(135deg,rgba(255,217,122,.18),rgba(255,255,255,.08));
+    border:1px solid rgba(255,217,122,.55);border-radius:999px;font-size:13px;
+    letter-spacing:2px;color:var(--glow);backdrop-filter:blur(4px)}
+  .conductor b{font-size:15px;letter-spacing:4px}
+  /* 白白出品印章 */
+  .seal{position:fixed;right:20px;bottom:20px;z-index:60;width:78px;height:78px;
+    border:3.5px solid #d23c2a;border-radius:12px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;color:#d23c2a;font-weight:900;font-size:22px;
+    letter-spacing:3px;transform:rotate(-8deg);background:rgba(255,253,246,.93);
+    box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 0 0 2px rgba(210,60,42,.25);
+    cursor:pointer;font-family:"STKaiti","KaiTi","SimSun",serif;user-select:none;
+    transition:transform .2s;animation:sealin 1s .8s both}
+  .seal small{font-size:11px;letter-spacing:5px;font-weight:700;margin-top:1px}
+  .seal:hover{transform:rotate(-8deg) scale(1.12)}
+  .seal:active{transform:rotate(-8deg) scale(.94)}
+  @keyframes sealin{0%{opacity:0;transform:rotate(-8deg) scale(2.4)}60%{opacity:1;transform:rotate(-8deg) scale(.92)}100%{opacity:1;transform:rotate(-8deg) scale(1)}}
+  .sealtoast{position:fixed;right:26px;bottom:108px;z-index:60;background:rgba(255,253,246,.96);
+    color:#3a3328;padding:10px 16px;border-radius:14px 14px 2px 14px;font-size:13px;
+    box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;transform:translateY(8px);
+    transition:all .35s;pointer-events:none;max-width:230px;line-height:1.6}
+  .sealtoast.show{opacity:1;transform:translateY(0)}
 
   /* ===== 铁路 ===== */
   .railzone{position:relative;z-index:2;max-width:980px;margin:30px auto 0;padding:54px 28px 10px}
@@ -128,9 +151,10 @@
 <div class="celestial" id="celestial">🌅</div>
 
 <header>
-  <div class="badge">FESTIVAL EXPRESS · 7 DAYS</div>
+  <div class="badge">FESTIVAL EXPRESS · BY 白白</div>
   <h1>🚂 节日<span class="gold">特快</span> · 七日环球开行</h1>
   <div class="sub">2026.06.11 — 06.17 · 点击站点发车，列车开到哪天，就看哪天的节日明信片<br>明信片可以翻面 ✉️ 背面盖着冷知识邮戳</div>
+  <div class="conductor">🎫 本次列车长 · <b>白白</b></div>
 </header>
 
 <div class="railzone">
@@ -151,8 +175,11 @@
 
 <footer>
   数据来源：联合国国际日 / National Day Calendar / Days of the Year / timeanddate<br>
-  🚂 嘟——本次列车由 Claude 号机车牵引 · 下一站，好心情
+  🚂 嘟——「白白号」机车鸣笛发车 · 出品人：白白 · 下一站，好心情
 </footer>
+
+<div class="seal" id="seal" title="白白出品，必属精品">白白<small>出品</small></div>
+<div class="sealtoast" id="sealtoast"></div>
 
 <script>
 /* ======= 七天数据 ======= */
@@ -385,6 +412,24 @@ for(let i=0;i<46;i++){
   s.style.cssText=`left:${Math.random()*100}vw;top:${Math.random()*45}vh;width:${z}px;height:${z}px;animation-delay:${Math.random()*3}s;`;
   document.body.appendChild(s);
 }
+
+/* 白白出品印章 */
+const sealMsgs=[
+  "🐰 这趟列车是白白开的！",
+  "✨ 白白出品，必属精品～",
+  "🚂 嘟嘟——白白号为您服务！",
+  "🎁 喜欢的话，替白白多转发几个朋友吧！",
+  "🌟 白白亲手盖的章，假一赔十！"
+];
+let sealCount=0;
+document.getElementById("seal").onclick=function(){
+  confetti(this);
+  const t=document.getElementById("sealtoast");
+  t.textContent=sealMsgs[sealCount++%sealMsgs.length];
+  t.classList.add("show");
+  clearTimeout(t._tm);
+  t._tm=setTimeout(()=>t.classList.remove("show"),2400);
+};
 
 /* 发车！ */
 go(0);
