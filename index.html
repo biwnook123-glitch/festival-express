@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🚂 节日特快 · 未来七天环球开行</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --sky1:#2b1d5c; --sky2:#7a4e8f; --land:#1c1440; --glow:#ffd97a;
+    --paper:#fdf8ec; --ink:#3a3328; --red:#e05d4b; --teal:#2ec4b6;
+  }
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    min-height:100vh; color:#fff; overflow-x:hidden;
+    background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 62%,var(--land) 62.2%);
+    transition:background 1.2s ease;
+  }
+  /* ===== 天空装饰 ===== */
+  .celestial{position:fixed;top:9vh;right:10vw;font-size:64px;z-index:0;
+    filter:drop-shadow(0 0 28px var(--glow));transition:all 1.2s ease;pointer-events:none}
+  .cloud{position:fixed;font-size:42px;opacity:.5;z-index:0;pointer-events:none;animation:drift linear infinite}
+  @keyframes drift{from{transform:translateX(-15vw)}to{transform:translateX(115vw)}}
+  .star{position:fixed;border-radius:50%;background:#fff;pointer-events:none;z-index:0;animation:tw 3s infinite}
+  @keyframes tw{0%,100%{opacity:.1}50%{opacity:.7}}
+
+  header{text-align:center;padding:42px 16px 10px;position:relative;z-index:2}
+  .badge{display:inline-block;font-size:12px;letter-spacing:6px;border:1px solid rgba(255,255,255,.45);
+    padding:5px 18px 5px 24px;border-radius:999px;color:rgba(255,255,255,.85);margin-bottom:14px}
+  h1{font-size:clamp(26px,5vw,44px);letter-spacing:3px;text-shadow:0 4px 18px rgba(0,0,0,.35)}
+  h1 .gold{color:var(--glow)}
+  .sub{margin-top:10px;color:rgba(255,255,255,.75);font-size:14px;line-height:1.8}
+
+  /* ===== 铁路 ===== */
+  .railzone{position:relative;z-index:2;max-width:980px;margin:30px auto 0;padding:54px 28px 10px}
+  .track{position:relative;height:6px;border-radius:3px;
+    background:repeating-linear-gradient(90deg,rgba(255,255,255,.85) 0 14px,rgba(255,255,255,.25) 14px 24px)}
+  .train{position:absolute;top:-46px;left:0;font-size:42px;transition:left 1.1s cubic-bezier(.45,.05,.35,1);
+    transform:scaleX(-1);z-index:5;filter:drop-shadow(0 6px 10px rgba(0,0,0,.4))}
+  .train .puff{position:absolute;left:34px;top:-6px;font-size:16px;opacity:0;transform:scaleX(-1)}
+  .train.moving .puff{animation:puff 1s infinite}
+  .train .puff:nth-child(2){animation-delay:.33s}.train .puff:nth-child(3){animation-delay:.66s}
+  @keyframes puff{0%{opacity:.9;transform:scaleX(-1) translate(0,0) scale(.5)}100%{opacity:0;transform:scaleX(-1) translate(26px,-26px) scale(1.5)}}
+  .train.moving{animation:chug .35s infinite}
+  @keyframes chug{0%,100%{margin-top:0}50%{margin-top:-2px}}
+
+  .stations{display:flex;justify-content:space-between;margin-top:-9px;position:relative}
+  .station{flex:1;text-align:center;cursor:pointer;position:relative;padding-top:18px;
+    transition:transform .25s;user-select:none}
+  .station:hover{transform:translateY(-3px)}
+  .dot{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid rgba(0,0,0,.25);
+    margin:0 auto;transition:all .3s;box-shadow:0 0 0 0 rgba(255,217,122,.5)}
+  .station.active .dot{background:var(--glow);transform:scale(1.5);box-shadow:0 0 0 9px rgba(255,217,122,.22)}
+  .s-emoji{font-size:24px;margin-top:9px;transition:transform .3s}
+  .station.active .s-emoji{transform:scale(1.35)}
+  .s-date{font-size:13px;font-weight:700;margin-top:3px;color:rgba(255,255,255,.95)}
+  .s-week{font-size:11px;color:rgba(255,255,255,.6)}
+  .station.today .s-date::after{content:"今天";font-size:9px;background:var(--red);border-radius:99px;
+    padding:1px 6px;margin-left:4px;vertical-align:2px}
+  /* 终点彩蛋站 */
+  .station.teaser{opacity:.65}
+  .station.teaser .dot{background:transparent;border:2px dashed rgba(255,255,255,.7)}
+
+  .controls{display:flex;justify-content:center;gap:12px;margin:26px 0 8px;position:relative;z-index:2}
+  .btn{background:rgba(255,255,255,.12);backdrop-filter:blur(6px);color:#fff;
+    border:1px solid rgba(255,255,255,.35);padding:10px 22px;border-radius:999px;
+    font-size:14px;cursor:pointer;font-weight:700;transition:all .2s}
+  .btn:hover{background:rgba(255,255,255,.25);transform:translateY(-2px)}
+  .btn.go{background:linear-gradient(135deg,#e05d4b,#f0915e);border:none;box-shadow:0 6px 18px rgba(224,93,75,.45)}
+
+  /* ===== 站台信息板 ===== */
+  .dayboard{text-align:center;margin:14px auto 4px;position:relative;z-index:2;min-height:58px}
+  .dayboard .city{font-size:13px;letter-spacing:4px;color:var(--glow)}
+  .dayboard h2{font-size:24px;margin-top:4px;text-shadow:0 3px 10px rgba(0,0,0,.4)}
+
+  /* ===== 明信片 ===== */
+  .cards{max-width:1060px;margin:18px auto 70px;padding:0 18px;position:relative;z-index:2;
+    display:flex;flex-wrap:wrap;justify-content:center;gap:26px}
+  .card{width:300px;perspective:1300px;cursor:pointer;opacity:0;transform:translateY(26px)}
+  .card.in{opacity:1;transform:translateY(0) rotate(var(--tilt));transition:opacity .5s,transform .5s}
+  .card:hover{z-index:4}
+  .cin{position:relative;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.4,.2,.2,1);min-height:218px}
+  .card.flip .cin{transform:rotateY(180deg)}
+  .f{backface-visibility:hidden;position:absolute;inset:0;border-radius:10px;background:var(--paper);
+    color:var(--ink);box-shadow:0 12px 28px rgba(0,0,0,.45);padding:18px 18px 14px;overflow:hidden}
+  .f.front{position:relative;display:flex;flex-direction:column}
+  .f.back{transform:rotateY(180deg);display:flex;flex-direction:column;justify-content:center;
+    background:linear-gradient(160deg,#fdf8ec,#f7ead2)}
+  /* 和纸胶带 */
+  .tape{position:absolute;top:-9px;left:50%;transform:translateX(-50%) rotate(-2deg);width:92px;height:22px;
+    background:rgba(46,196,182,.55);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+  .card:nth-child(2n) .tape{background:rgba(224,93,75,.5);transform:translateX(-50%) rotate(2deg)}
+  .card:nth-child(3n) .tape{background:rgba(245,197,67,.55)}
+  /* 邮票 + 邮戳 */
+  .corner{display:flex;justify-content:flex-end;align-items:flex-start;gap:8px;margin-bottom:2px}
+  .postmark{width:52px;height:52px;border:2px solid rgba(58,51,40,.35);border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8.5px;
+    color:rgba(58,51,40,.55);transform:rotate(-12deg);letter-spacing:1px;flex:0 0 auto}
+  .stampbox{width:46px;height:56px;border:2px dashed rgba(58,51,40,.4);border-radius:4px;
+    display:flex;align-items:center;justify-content:center;font-size:26px;flex:0 0 auto;
+    background:repeating-linear-gradient(45deg,rgba(0,0,0,.02) 0 5px,transparent 5px 10px)}
+  .where{font-size:11px;color:#9a8f76;letter-spacing:2px;margin-bottom:5px}
+  .card h3{font-size:18px;line-height:1.4;margin-bottom:7px}
+  .card h3 small{display:block;font-weight:400;font-size:11px;color:#9a8f76;margin-top:2px}
+  .card p{font-size:13.5px;line-height:1.75;color:#5b5342}
+  .flipnote{margin-top:auto;padding-top:9px;font-size:10.5px;color:#b3a88c;text-align:right}
+  .f.back h4{color:var(--red);font-size:14px;margin-bottom:9px;letter-spacing:1px}
+  .f.back p{font-size:13.5px;line-height:1.85}
+  .wax{position:absolute;right:14px;bottom:12px;font-size:24px;transform:rotate(10deg);opacity:.85}
+
+  footer{text-align:center;padding:10px 20px 56px;color:rgba(255,255,255,.5);font-size:12px;line-height:2;position:relative;z-index:2}
+  footer a{color:rgba(255,255,255,.7)}
+
+  .confetti{position:fixed;top:-12px;z-index:99;pointer-events:none;animation:drop linear forwards}
+  @keyframes drop{to{transform:translateY(108vh) rotate(720deg)}}
+
+  @media (max-width:640px){
+    .s-week{display:none}
+    .s-emoji{font-size:18px}
+    .s-date{font-size:10px}
+    .railzone{padding:54px 10px 10px}
+    .card{width:88%}
+  }
+</style>
+</head>
+<body>
+
+<div class="celestial" id="celestial">🌅</div>
+
+<header>
+  <div class="badge">FESTIVAL EXPRESS · 7 DAYS</div>
+  <h1>🚂 节日<span class="gold">特快</span> · 七日环球开行</h1>
+  <div class="sub">2026.06.11 — 06.17 · 点击站点发车，列车开到哪天，就看哪天的节日明信片<br>明信片可以翻面 ✉️ 背面盖着冷知识邮戳</div>
+</header>
+
+<div class="railzone">
+  <div class="track">
+    <div class="train" id="train">🚂<span class="puff">💨</span><span class="puff">💨</span><span class="puff">💨</span></div>
+  </div>
+  <div class="stations" id="stations"></div>
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="go(cur-1)">⬅ 前一天</button>
+  <button class="btn go" id="tourBtn" onclick="toggleTour()">▶ 自动巡游</button>
+  <button class="btn" onclick="go(cur+1)">后一天 ➡</button>
+</div>
+
+<div class="dayboard" id="dayboard"></div>
+<div class="cards" id="cards"></div>
+
+<footer>
+  数据来源：联合国国际日 / National Day Calendar / Days of the Year / timeanddate<br>
+  🚂 嘟——本次列车由 Claude 号机车牵引 · 下一站，好心情
+</footer>
+
+<script>
+/* ======= 七天数据 ======= */
+const days = [
+  { d:"6.11", w:"周四", icon:"⚽", city:"墨西哥城 · 檀香山", title:"开幕之日",
+    theme:{s1:"#2b1d5c",s2:"#7a4e8f",land:"#1c1440",glow:"#ffd97a",cel:"🌅"},
+    fests:[
+      {e:"⚽",where:"墨西哥城 🇲🇽",n:"2026 世界杯开幕",en:"FIFA World Cup Opening",
+       p:"就是今天！史上首届 48 队、三国合办的世界杯在阿兹特克体育场开球，全球数十亿人共享同一种心跳。",
+       b:"阿兹特克体育场成为史上第一座承办三届世界杯开幕的球场（1970、1986、2026）。马拉多纳的「上帝之手」就诞生于此。",seal:"⚽"},
+      {e:"🪁",where:"联合国 🇺🇳",n:"国际游戏日",en:"International Day of Play",
+       p:"联合国官宣：玩耍是儿童的基本权利，是学习与幸福感的源泉。今天摸鱼，有据可依。",
+       b:"这是联合国 2024 年才设立的新纪念日，今年第三届。研究表明自由玩耍能提升大脑发育——对大人同样有效。",seal:"🎈"},
+      {e:"🌺",where:"夏威夷 🇺🇸",n:"卡美哈梅哈国王日",en:"King Kamehameha Day",
+       p:"夏威夷州法定假日，纪念 1810 年统一群岛的大帝。全岛放假，雕像挂满几米长的鲜花花环。",
+       b:"这个节日 1871 年由夏威夷王国设立，比夏威夷加入美国早了近百年，是全美最古老的州级节日之一。",seal:"🌺"}
+    ]},
+  { d:"6.12", w:"周五", icon:"💘", city:"莫斯科 · 马尼拉 · 里约", title:"国旗与玫瑰之日",
+    theme:{s1:"#5c1d3a",s2:"#b35468",land:"#2d1030",glow:"#ffb3c6",cel:"🌇"},
+    fests:[
+      {e:"🇷🇺",where:"俄罗斯",n:"俄罗斯日",en:"Russia Day",
+       p:"俄罗斯国家级节日，纪念 1990 年《国家主权宣言》通过。红场有颁奖典礼，夜晚全国放烟花。",
+       b:"很多俄罗斯人习惯叫它「独立日」，但官方名称就叫「俄罗斯日」——毕竟很难说清是从谁那里独立。这一天克里姆林宫会颁发国家奖章。",seal:"🎆"},
+      {e:"🇵🇭",where:"菲律宾",n:"独立日",en:"Araw ng Kalayaan",
+       p:"纪念 1898 年脱离西班牙宣布独立。马尼拉大阅兵，全国挂满国旗——国旗还能倒挂表示战争状态，全球罕见。",
+       b:"菲律宾国旗是世界上唯一「会变身」的国旗：和平时期蓝边朝上，战争时期红边朝上。宣读独立宣言的阳台至今保留在甲米地。",seal:"🦅"},
+      {e:"💘",where:"巴西 🇧🇷",n:"巴西情人节",en:"Dia dos Namorados",
+       p:"巴西人不过 2 月 14——他们的情人节是今天！恋人互送礼物，餐厅爆满，是巴西零售业仅次于圣诞的狂欢。",
+       b:"为什么是今天？因为明天是「媒人圣人」圣安东尼奥的纪念日，单身者会向他祈求姻缘。至于 2 月 14？撞上狂欢节季，没人有空谈恋爱。",seal:"💌"},
+      {e:"🦸",where:"美国 🇺🇸",n:"超人日",en:"Superman Day",
+       p:"1938 年 6 月《动作漫画》创刊号上，一个穿红披风的男人举起了汽车——超级英雄文化从这一天开始。",
+       b:"那本创刊号当年卖 10 美分，2024 年一本品相完好的拍出了 600 万美元，是史上最贵的漫画书。",seal:"🦸"}
+    ]},
+  { d:"6.13", w:"周六", icon:"🐟", city:"里斯本", title:"沙丁鱼飘香之夜",
+    theme:{s1:"#1d3a5c",s2:"#4e8f8a",land:"#102a30",glow:"#9be8d8",cel:"⛅"},
+    fests:[
+      {e:"🐟",where:"葡萄牙 🇵🇹",n:"里斯本圣安东尼奥节",en:"Festas de Santo António",
+       p:"里斯本一年中最疯的一夜进入高潮：老城满街烤沙丁鱼、彩纸横幅、民歌游行，全城弥漫炭火香。",
+       b:"今天还有「圣安东尼奥集体婚礼」——市政府出钱帮几十对新人同时举办婚礼，从 1958 年延续至今。单身者互赠罗勒小盆栽表白。",seal:"🐟"},
+      {e:"⚪",where:"联合国 🇺🇳",n:"国际白化病宣传日",en:"Albinism Awareness Day",
+       p:"为全球白化病人群发声的日子，主题色是蓝色。理解与防晒霜，都是他们需要的。",
+       b:"白化病在全球约 1/20000 人中出现，但在撒哈拉以南非洲高达 1/1400。这一天的设立很大程度是为保护当地白化病儿童的安全与权利。",seal:"💙"},
+      {e:"🧵",where:"全球 🌐",n:"缝纫机日",en:"Sewing Machine Day",
+       p:"向这台改变世界的机器致敬——它把做一件衬衫的时间从 14 小时缩到了 1 小时。",
+       b:"发明者之一埃利亚斯·豪声称设计灵感来自噩梦：梦里食人族的长矛尖上都有孔——于是他把针眼挪到了针尖，缝纫机就此成功。",seal:"🪡"}
+    ]},
+  { d:"6.14", w:"周日", icon:"🩸", city:"日内瓦 · 华盛顿", title:"热血星期天",
+    theme:{s1:"#5c1d1d",s2:"#a8563e",land:"#2b0f14",glow:"#ffc09f",cel:"🌤️"},
+    fests:[
+      {e:"🩸",where:"世卫组织 🌐",n:"世界献血者日",en:"World Blood Donor Day",
+       p:"向全球无偿献血者致敬。一袋血最多能救三条命——这是普通人离「超级英雄」最近的方式。",
+       b:"日期选在 6 月 14 日，是因为这天是卡尔·兰德施泰纳的生日——他发现了 ABO 血型系统，拿了诺贝尔奖，让输血从赌命变成医学。",seal:"❤️"},
+      {e:"🇺🇸",where:"美国",n:"国旗日",en:"Flag Day",
+       p:"纪念 1777 年大陆会议正式采用星条旗。今天也恰好是美国陆军的生日（1775 年成立）。",
+       b:"现行 50 星版国旗的排布方案，出自一位 17 岁高中生 1958 年的课堂作业——老师只给了 B-，后来它成了国旗,老师把成绩改成了 A。",seal:"🎌"},
+      {e:"🥃",where:"美国 🇺🇸",n:"波本威士忌日",en:"National Bourbon Day",
+       p:"美国的「国家精神饮料」——按法律，波本必须在全新烧焦的橡木桶中陈酿，桶只能用一次。",
+       b:"那些只用过一次的波本桶去哪了？大多漂洋过海卖给了苏格兰和日本的威士忌厂继续用——全球威士忌的风味地图,有一半建立在波本的二手桶上。",seal:"🥃"}
+    ]},
+  { d:"6.15", w:"周一", icon:"💨", city:"兰尼米德草地", title:"风与契约之日",
+    theme:{s1:"#1d5c4e",s2:"#56a87a",land:"#0e2b22",glow:"#c5f0a4",cel:"🌬️"},
+    fests:[
+      {e:"💨",where:"全球 🌐",n:"全球风能日",en:"Global Wind Day",
+       p:"为「看不见的能源」庆祝的日子。各地风电场今天开放参观——你可以站进一台风机巨大的叶片下面。",
+       b:"一台现代海上风机的单只叶片已超过 110 米，比足球场还长；转一圈扫过的面积约等于 9 个标准足球场。",seal:"🌀"},
+      {e:"📜",where:"英格兰 🏴󠁧󠁢󠁥󠁮󠁧󠁿",n:"《大宪章》签署日",en:"Magna Carta Day",
+       p:"1215 年的今天，英王约翰在兰尼米德草地被贵族们按头签字——「王在法下」的观念从这页羊皮纸开始。",
+       b:"当时没人觉得它重要：教皇十周后就宣布它无效，约翰王转头就毁约。但其中一句「不经合法审判，不得逮捕任何自由人」活了 800 年，成为现代法治的源代码。",seal:"⚖️"},
+      {e:"👴",where:"联合国 🇺🇳",n:"世界预防虐待老人日",en:"Elder Abuse Awareness Day",
+       p:"一个提醒：全球每 6 位老人就有 1 位曾遭受某种形式的忽视或虐待。给家里老人打个电话吧。",
+       b:"最常见的形式不是暴力,而是「经济虐待」和情感忽视。研究显示,最有效的预防办法朴素得惊人：高频率的家人联络。",seal:"🧓"}
+    ]},
+  { d:"6.16", w:"周二", icon:"📖", city:"都柏林 · 索韦托", title:"青年与小说之日",
+    theme:{s1:"#3a1d5c",s2:"#6a5db3",land:"#170f33",glow:"#b8a4ff",cel:"🌆"},
+    fests:[
+      {e:"📖",where:"爱尔兰 🇮🇪",n:"布鲁姆日",en:"Bloomsday",
+       p:"全世界最奇特的文学节：书迷穿上爱德华时代服装，沿《尤利西斯》主角布鲁姆的路线重走都柏林，吃他吃过的早餐。",
+       b:"乔伊斯的千页巨著《尤利西斯》全部情节只发生在 1904 年 6 月 16 日这一天——因为那是他和未来妻子诺拉第一次约会的日子。一次约会，纪念了一百多年。",seal:"📚"},
+      {e:"🇿🇦",where:"南非",n:"青年节",en:"Youth Day",
+       p:"南非法定假日，纪念 1976 年索韦托起义中为反抗种族隔离教育而牺牲的学生们。",
+       b:"当年学生抗议的导火索，是政府强制用阿非利卡语授课。一张 13 岁遇难少年被同伴抱起的照片传遍世界,成为压垮种族隔离制度舆论的第一根稻草。",seal:"✊"},
+      {e:"💸",where:"联合国 🇺🇳",n:"家庭汇款国际日",en:"Day of Family Remittances",
+       p:"致敬全球 2 亿多打工人——他们寄回家的钱，养活着全球八分之一的人口。",
+       b:"全球家庭汇款总额每年超过 8000 亿美元,是国际援助总额的三倍以上。平均每笔只有 200~300 美元,却是无数家庭的全部底气。",seal:"🏠"}
+    ]},
+  { d:"6.17", w:"周三", icon:"🇮🇸", city:"雷克雅未克", title:"极昼里的国庆",
+    theme:{s1:"#0f2b4d",s2:"#3e7cb8",land:"#0a1c33",glow:"#a4d8ff",cel:"🌞"},
+    fests:[
+      {e:"🇮🇸",where:"冰岛",n:"冰岛国庆日",en:"Þjóðhátíðardagurinn",
+       p:"纪念 1944 年脱离丹麦成立共和国。此时冰岛接近极昼，太阳几乎不落山——大概是全世界白天最长的国庆节。",
+       b:"日期选的是独立运动领袖 Jón Sigurðsson 的生日。庆典上会有一位女性扮演「山妇人」（Fjallkonan）朗诵诗歌,她是冰岛的化身。当地人还笃信一个梗：这天总会下雨。",seal:"🗻"},
+      {e:"🏜️",where:"联合国 🇺🇳",n:"防治荒漠化和干旱世界日",en:"Combat Desertification Day",
+       p:"地球每年失去约 1 亿亩健康土地。今天是为土地「续命」的日子。",
+       b:"地球上最大的生态工程之一是非洲「绿色长城」：22 个国家正在萨赫勒地带种一条 8000 公里长的树带,宽约 15 公里,横穿整个非洲大陆。",seal:"🌱"},
+      {e:"🗽",where:"波士顿 🇺🇸",n:"邦克山日",en:"Bunker Hill Day",
+       p:"纪念 1775 年美国独立战争早期最惨烈的邦克山战役，波士顿部分地区今天放假。",
+       b:"那句著名的「等看到敌人眼白再开枪」就出自这场战役——不是为了帅,是因为弹药真的不够了。",seal:"🎖️"}
+    ]},
+];
+/* 彩蛋站 */
+const teaser = { d:"6.19", w:"周五", icon:"🐉", name:"端午节" };
+
+/* ======= 渲染站点 ======= */
+const stationsEl = document.getElementById("stations");
+days.forEach((day,i)=>{
+  const s=document.createElement("div");
+  s.className="station"+(i===0?" today":"");
+  s.innerHTML=`<div class="dot"></div><div class="s-emoji">${day.icon}</div>
+    <div class="s-date">${day.d}</div><div class="s-week">${day.w}</div>`;
+  s.onclick=()=>go(i);
+  stationsEl.appendChild(s);
+});
+/* 终点彩蛋 */
+const tz=document.createElement("div");
+tz.className="station teaser";
+tz.innerHTML=`<div class="dot"></div><div class="s-emoji">${teaser.icon}</div>
+  <div class="s-date">${teaser.d}</div><div class="s-week">即将到站·${teaser.name}</div>`;
+tz.onclick=()=>{ alert("🐉 嘟——端午节专列 6 月 19 日发车！\n粽子和龙舟已在终点站等候。"); };
+stationsEl.appendChild(tz);
+
+/* ======= 切换逻辑 ======= */
+let cur=-1, touring=false, tourTimer=null;
+const train=document.getElementById("train");
+const cardsEl=document.getElementById("cards");
+const board=document.getElementById("dayboard");
+const root=document.documentElement;
+
+function go(i){
+  if(i<0||i>=days.length||i===cur) return;
+  cur=i;
+  const day=days[i];
+  /* 火车开动 */
+  const stops=document.querySelectorAll(".station");
+  stops.forEach((s,k)=>s.classList.toggle("active",k===i));
+  const target=stops[i];
+  const zone=document.querySelector(".railzone");
+  const left=target.getBoundingClientRect().left - zone.getBoundingClientRect().left
+             + target.offsetWidth/2 - 49;
+  train.classList.add("moving");
+  train.style.left=left+"px";
+  setTimeout(()=>train.classList.remove("moving"),1150);
+
+  /* 换天色 */
+  root.style.setProperty("--sky1",day.theme.s1);
+  root.style.setProperty("--sky2",day.theme.s2);
+  root.style.setProperty("--land",day.theme.land);
+  root.style.setProperty("--glow",day.theme.glow);
+  document.body.style.background=
+    `linear-gradient(180deg,${day.theme.s1} 0%,${day.theme.s2} 62%,${day.theme.land} 62.2%)`;
+  document.getElementById("celestial").textContent=day.theme.cel;
+
+  /* 信息板 */
+  board.innerHTML=`<div class="city">${day.city}</div><h2>${day.d} ${day.w} · ${day.title}</h2>`;
+
+  /* 明信片 */
+  cardsEl.innerHTML="";
+  day.fests.forEach((f,k)=>{
+    const c=document.createElement("div");
+    c.className="card";
+    c.style.setProperty("--tilt",(k%2? "1.2deg":"-1.2deg"));
+    c.innerHTML=`<div class="cin">
+      <div class="f front">
+        <div class="tape"></div>
+        <div class="corner">
+          <div class="postmark">FESTIVAL<br>2026<br>${day.d}</div>
+          <div class="stampbox">${f.e}</div>
+        </div>
+        <div class="where">FROM · ${f.where}</div>
+        <h3>${f.n}<small>${f.en}</small></h3>
+        <p>${f.p}</p>
+        <div class="flipnote">翻面看冷知识 ↻</div>
+      </div>
+      <div class="f back">
+        <h4>📮 冷知识 · ${f.n}</h4>
+        <p>${f.b}</p>
+        <div class="wax">${f.seal}</div>
+      </div>
+    </div>`;
+    c.onclick=()=>{ c.classList.toggle("flip"); if(c.classList.contains("flip")) confetti(c); };
+    cardsEl.appendChild(c);
+    setTimeout(()=>c.classList.add("in"),140*k+1000);
+  });
+}
+
+/* 自动巡游 */
+function toggleTour(){
+  touring=!touring;
+  document.getElementById("tourBtn").textContent = touring?"⏸ 暂停巡游":"▶ 自动巡游";
+  if(touring){
+    if(cur>=days.length-1) go(0);
+    tourTimer=setInterval(()=>{
+      if(cur>=days.length-1){ toggleTour(); return; }
+      go(cur+1);
+    },5200);
+  } else clearInterval(tourTimer);
+}
+document.addEventListener("keydown",e=>{
+  if(e.key==="ArrowRight") go(cur+1);
+  if(e.key==="ArrowLeft") go(cur-1);
+});
+
+/* 彩带 */
+const colors=["#e05d4b","#f5c543","#2ec4b6","#9b5de5","#f0915e","#4cc9f0"];
+function confetti(near){
+  const r=near.getBoundingClientRect();
+  for(let i=0;i<24;i++){
+    const p=document.createElement("div");
+    p.className="confetti";
+    const s=5+Math.random()*8;
+    p.style.cssText=`left:${r.left+Math.random()*r.width}px;top:${r.top}px;width:${s}px;height:${s*.55}px;
+      background:${colors[Math.random()*colors.length|0]};border-radius:2px;
+      animation-duration:${1.3+Math.random()*1.6}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),3200);
+  }
+}
+
+/* 云与星 */
+for(let i=0;i<4;i++){
+  const c=document.createElement("div");
+  c.className="cloud"; c.textContent="☁️";
+  c.style.cssText=`top:${4+Math.random()*22}vh;font-size:${26+Math.random()*30}px;
+    animation-duration:${55+Math.random()*50}s;animation-delay:-${Math.random()*60}s;`;
+  document.body.appendChild(c);
+}
+for(let i=0;i<46;i++){
+  const s=document.createElement("div");
+  s.className="star";
+  const z=1+Math.random()*2;
+  s.style.cssText=`left:${Math.random()*100}vw;top:${Math.random()*45}vh;width:${z}px;height:${z}px;animation-delay:${Math.random()*3}s;`;
+  document.body.appendChild(s);
+}
+
+/* 发车！ */
+go(0);
+</script>
+</body>
+</html>
