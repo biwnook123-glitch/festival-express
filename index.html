@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🚂 节日特快 · 未来七天环球开行 · 白白出品</title>
+<title>🚂 节日特快 · 白白铁路局</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   :root{
@@ -30,29 +30,17 @@
   h1{font-size:clamp(26px,5vw,44px);letter-spacing:3px;text-shadow:0 4px 18px rgba(0,0,0,.35)}
   h1 .gold{color:var(--glow)}
   .sub{margin-top:10px;color:rgba(255,255,255,.75);font-size:14px;line-height:1.8}
-  /* 列车长铭牌 */
-  .conductor{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:7px 20px;
-    background:linear-gradient(135deg,rgba(255,217,122,.18),rgba(255,255,255,.08));
-    border:1px solid rgba(255,217,122,.55);border-radius:999px;font-size:13px;
-    letter-spacing:2px;color:var(--glow);backdrop-filter:blur(4px)}
-  .conductor b{font-size:15px;letter-spacing:4px}
-  /* 白白出品印章 */
-  .seal{position:fixed;right:20px;bottom:20px;z-index:60;width:78px;height:78px;
-    border:3.5px solid #d23c2a;border-radius:12px;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;color:#d23c2a;font-weight:900;font-size:22px;
-    letter-spacing:3px;transform:rotate(-8deg);background:rgba(255,253,246,.93);
-    box-shadow:0 8px 22px rgba(0,0,0,.4),inset 0 0 0 2px rgba(210,60,42,.25);
-    cursor:pointer;font-family:"STKaiti","KaiTi","SimSun",serif;user-select:none;
-    transition:transform .2s;animation:sealin 1s .8s both}
-  .seal small{font-size:11px;letter-spacing:5px;font-weight:700;margin-top:1px}
-  .seal:hover{transform:rotate(-8deg) scale(1.12)}
-  .seal:active{transform:rotate(-8deg) scale(.94)}
-  @keyframes sealin{0%{opacity:0;transform:rotate(-8deg) scale(2.4)}60%{opacity:1;transform:rotate(-8deg) scale(.92)}100%{opacity:1;transform:rotate(-8deg) scale(1)}}
-  .sealtoast{position:fixed;right:26px;bottom:108px;z-index:60;background:rgba(255,253,246,.96);
-    color:#3a3328;padding:10px 16px;border-radius:14px 14px 2px 14px;font-size:13px;
-    box-shadow:0 8px 22px rgba(0,0,0,.35);opacity:0;transform:translateY(8px);
-    transition:all .35s;pointer-events:none;max-width:230px;line-height:1.6}
-  .sealtoast.show{opacity:1;transform:translateY(0)}
+  /* 白白号铭牌（点火车头的彩蛋） */
+  .nameplate{position:absolute;top:48px;left:50%;transform:scaleX(-1) translateX(50%);
+    background:linear-gradient(180deg,#d9b75c,#a8862f);color:#fffbe8;font-size:10px;
+    letter-spacing:5px;padding:3px 10px 3px 15px;border-radius:3px;white-space:nowrap;
+    box-shadow:0 2px 6px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.5);
+    font-family:"STKaiti","KaiTi",serif;pointer-events:none;
+    animation:plate 2s ease forwards}
+  @keyframes plate{0%{opacity:0;margin-top:-6px}12%{opacity:1;margin-top:0}80%{opacity:1}100%{opacity:0}}
+  .toot{position:absolute;top:-18px;left:8px;font-size:12px;color:rgba(255,255,255,.9);
+    transform:scaleX(-1);pointer-events:none;animation:tootup 1.2s ease forwards;letter-spacing:2px}
+  @keyframes tootup{0%{opacity:0;translate:0 6px}25%{opacity:1}100%{opacity:0;translate:0 -22px}}
 
   /* ===== 铁路 ===== */
   .railzone{position:relative;z-index:2;max-width:980px;margin:30px auto 0;padding:54px 28px 10px}
@@ -120,8 +108,12 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8.5px;
     color:rgba(58,51,40,.55);transform:rotate(-12deg);letter-spacing:1px;flex:0 0 auto}
   .stampbox{width:46px;height:56px;border:2px dashed rgba(58,51,40,.4);border-radius:4px;
-    display:flex;align-items:center;justify-content:center;font-size:26px;flex:0 0 auto;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    font-size:24px;flex:0 0 auto;
     background:repeating-linear-gradient(45deg,rgba(0,0,0,.02) 0 5px,transparent 5px 10px)}
+  .stampbox i{font-style:normal;font-size:7px;letter-spacing:2px;color:rgba(58,51,40,.45)}
+  .sig{position:absolute;left:18px;bottom:12px;font-family:"STKaiti","KaiTi",serif;
+    font-size:12.5px;color:rgba(58,51,40,.5);transform:rotate(-2deg);letter-spacing:1px}
   .where{font-size:11px;color:#9a8f76;letter-spacing:2px;margin-bottom:5px}
   .card h3{font-size:18px;line-height:1.4;margin-bottom:7px}
   .card h3 small{display:block;font-weight:400;font-size:11px;color:#9a8f76;margin-top:2px}
@@ -151,10 +143,9 @@
 <div class="celestial" id="celestial">🌅</div>
 
 <header>
-  <div class="badge">FESTIVAL EXPRESS · BY 白白</div>
+  <div class="badge">FESTIVAL EXPRESS · 7 DAYS</div>
   <h1>🚂 节日<span class="gold">特快</span> · 七日环球开行</h1>
   <div class="sub">2026.06.11 — 06.17 · 点击站点发车，列车开到哪天，就看哪天的节日明信片<br>明信片可以翻面 ✉️ 背面盖着冷知识邮戳</div>
-  <div class="conductor">🎫 本次列车长 · <b>白白</b></div>
 </header>
 
 <div class="railzone">
@@ -175,11 +166,8 @@
 
 <footer>
   数据来源：联合国国际日 / National Day Calendar / Days of the Year / timeanddate<br>
-  🚂 嘟——「白白号」机车鸣笛发车 · 出品人：白白 · 下一站，好心情
+  白白铁路局 全线运营 · 明信片经由白白邮政寄出 · 下一站，好心情
 </footer>
-
-<div class="seal" id="seal" title="白白出品，必属精品">白白<small>出品</small></div>
-<div class="sealtoast" id="sealtoast"></div>
 
 <script>
 /* ======= 七天数据 ======= */
@@ -344,8 +332,8 @@ function go(i){
       <div class="f front">
         <div class="tape"></div>
         <div class="corner">
-          <div class="postmark">FESTIVAL<br>2026<br>${day.d}</div>
-          <div class="stampbox">${f.e}</div>
+          <div class="postmark">白白邮政<br>2026<br>${day.d}</div>
+          <div class="stampbox">${f.e}<i>白白邮政</i></div>
         </div>
         <div class="where">FROM · ${f.where}</div>
         <h3>${f.n}<small>${f.en}</small></h3>
@@ -355,6 +343,7 @@ function go(i){
       <div class="f back">
         <h4>📮 冷知识 · ${f.n}</h4>
         <p>${f.b}</p>
+        <div class="sig">—— 白白 寄</div>
         <div class="wax">${f.seal}</div>
       </div>
     </div>`;
@@ -413,23 +402,18 @@ for(let i=0;i<46;i++){
   document.body.appendChild(s);
 }
 
-/* 白白出品印章 */
-const sealMsgs=[
-  "🐰 这趟列车是白白开的！",
-  "✨ 白白出品，必属精品～",
-  "🚂 嘟嘟——白白号为您服务！",
-  "🎁 喜欢的话，替白白多转发几个朋友吧！",
-  "🌟 白白亲手盖的章，假一赔十！"
-];
-let sealCount=0;
-document.getElementById("seal").onclick=function(){
-  confetti(this);
-  const t=document.getElementById("sealtoast");
-  t.textContent=sealMsgs[sealCount++%sealMsgs.length];
-  t.classList.add("show");
-  clearTimeout(t._tm);
-  t._tm=setTimeout(()=>t.classList.remove("show"),2400);
-};
+/* 彩蛋：点火车头，亮出「白白号」黄铜铭牌 */
+train.style.cursor="pointer";
+train.addEventListener("click",e=>{
+  e.stopPropagation();
+  train.querySelectorAll(".nameplate,.toot").forEach(n=>n.remove());
+  const plate=document.createElement("div");
+  plate.className="nameplate"; plate.textContent="白 白 号";
+  const toot=document.createElement("div");
+  toot.className="toot"; toot.textContent="嘟——";
+  train.append(plate,toot);
+  setTimeout(()=>{plate.remove();toot.remove();},2100);
+});
 
 /* 发车！ */
 go(0);
